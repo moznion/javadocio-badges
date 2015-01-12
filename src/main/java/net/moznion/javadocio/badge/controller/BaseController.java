@@ -1,20 +1,10 @@
 package net.moznion.javadocio.badge.controller;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-
 import me.geso.avans.ControllerBase;
-import me.geso.avans.mustache.MustacheView;
-import me.geso.avans.mustache.MustacheViewMixin;
 import me.geso.avans.trigger.ResponseFilter;
 import me.geso.webscrew.response.WebResponse;
 
-public abstract class BaseController extends ControllerBase
-    implements MustacheViewMixin {
-
-	public MustacheView getMustacheView() {
-		return new MustacheView(new DefaultMustacheFactory("templates/"));
-	}
-
+public abstract class BaseController extends ControllerBase {
 	@ResponseFilter
 	public void securityFilters(WebResponse resp) {
 		// Reducing MIME type security risks
