@@ -1,4 +1,4 @@
-package net.moznion.javadocio.badge.controller;
+package net.moznion.javadocio.badges.controller;
 
 import me.geso.mech2.Mech2;
 import me.geso.mech2.Mech2Result;
@@ -41,12 +41,5 @@ public class RootControllerTest {
         if (this.tomcat != null) {
             this.tomcat.stop();
         }
-    }
-
-    @Test
-    public void testRoot() throws IOException, URISyntaxException {
-        final Mech2Result result = mech.get("/").execute();
-        assertEquals(200, result.getResponse().getStatusLine().getStatusCode());
-        assertTrue(result.getResponseBodyAsString().contains("Hello"));
     }
 }

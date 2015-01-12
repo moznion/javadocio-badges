@@ -3,9 +3,9 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.moznion</groupId>
-	<artifactId>javadocio-badge</artifactId>
+	<artifactId>javadocio-badges</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>javadocio-badge</name>
+	<name>javadocio-badges</name>
 	<description></description>
 	<packaging>war</packaging>
 

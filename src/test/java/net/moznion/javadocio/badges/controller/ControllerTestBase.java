@@ -1,4 +1,4 @@
-package net.moznion.javadocio.badge.controller;
+package net.moznion.javadocio.badges.controller;
 
 import me.geso.mech2.Mech2;
 import me.geso.mech2.Mech2WithBase;

@@ -1,11 +1,11 @@
-package net.moznion.javadocio.badge.controller;
+package net.moznion.javadocio.badges.controller;
 
 import me.geso.avans.annotation.GET;
 import me.geso.avans.annotation.PathParam;
 import me.geso.webscrew.response.WebResponse;
 
-import net.moznion.javadocio.badge.BadgeFetcher;
-import net.moznion.javadocio.badge.JavadocIoUrlBuilder;
+import net.moznion.javadocio.badges.BadgeFetcher;
+import net.moznion.javadocio.badges.JavadocIoUrlBuilder;
 
 public class RootController extends BaseController {
   @GET("/{groupId}/{artifactId}")

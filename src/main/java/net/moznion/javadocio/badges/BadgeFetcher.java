@@ -1,10 +1,10 @@
-package net.moznion.javadocio.badge;
+package net.moznion.javadocio.badges;
 
 import me.geso.mech2.Mech2;
 import me.geso.mech2.Mech2Result;
 import me.geso.webscrew.response.RedirectResponse;
 
-import net.moznion.javadocio.badge.controller.BaseController;
+import net.moznion.javadocio.badges.controller.BaseController;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;

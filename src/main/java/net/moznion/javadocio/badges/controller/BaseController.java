@@ -1,4 +1,4 @@
-package net.moznion.javadocio.badge.controller;
+package net.moznion.javadocio.badges.controller;
 
 import me.geso.avans.ControllerBase;
 import me.geso.avans.trigger.ResponseFilter;

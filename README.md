@@ -1,4 +1,4 @@
-javadocio-badge
+javadocio-badges
 =============
 
 Start the server

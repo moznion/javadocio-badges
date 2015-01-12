@@ -1,4 +1,4 @@
-package net.moznion.javadocio.badge;
+package net.moznion.javadocio.badges;
 
 public class JavadocIoUrlBuilder {
   private static final String javadocIoBaseUrl = "http://www.javadoc.io/doc";
