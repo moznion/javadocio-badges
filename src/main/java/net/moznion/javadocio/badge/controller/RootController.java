@@ -4,7 +4,7 @@ import me.geso.avans.annotation.GET;
 import me.geso.avans.annotation.PathParam;
 import me.geso.webscrew.response.WebResponse;
 
-import net.moznion.javadocio.badge.BadgeGenerator;
+import net.moznion.javadocio.badge.BadgeFetcher;
 import net.moznion.javadocio.badge.JavadocIoUrlBuilder;
 
 public class RootController extends BaseController {
@@ -17,6 +17,6 @@ public class RootController extends BaseController {
   @GET("/{groupId}/{artifactId}/badge.svg")
   public WebResponse getBadge(@PathParam("groupId") final String groupId,
       @PathParam("artifactId") final String artifactId) {
-    return new BadgeGenerator(groupId, artifactId, this).generate();
+    return new BadgeFetcher(groupId, artifactId, this).fetch();
   }
 }

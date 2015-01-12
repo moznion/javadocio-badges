@@ -15,7 +15,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
-public class BadgeGenerator {
+public class BadgeFetcher {
   private final String groupId;
   private final String artifactId;
   private final BaseController controller;
@@ -23,13 +23,13 @@ public class BadgeGenerator {
   private static final String baseUrl = "https://img.shields.io";
   private static final Mech2 mech2 = Mech2.builder().build();
 
-  public BadgeGenerator(String groupId, String artifactId, BaseController controller) {
+  public BadgeFetcher(String groupId, String artifactId, BaseController controller) {
     this.groupId = groupId;
     this.artifactId = artifactId;
     this.controller = controller;
   }
 
-  public RedirectResponse generate() {
+  public RedirectResponse fetch() {
     return controller.redirect(buildShieldsIoUrl());
   }
 
