@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class BadgeFetcher {
+public class BadgeProvider {
   private final String groupId;
   private final String artifactId;
   private final BaseController controller;
@@ -24,13 +24,13 @@ public class BadgeFetcher {
   private static final String baseUrl = "https://img.shields.io";
   private static final Mech2 mech2 = Mech2.builder().build();
 
-  public BadgeFetcher(String groupId, String artifactId, BaseController controller) {
+  public BadgeProvider(String groupId, String artifactId, BaseController controller) {
     this.groupId = groupId;
     this.artifactId = artifactId;
     this.controller = controller;
   }
 
-  public RedirectResponse fetch() {
+  public RedirectResponse redirect() {
     return controller.redirect(buildShieldsIoUrl());
   }
 
