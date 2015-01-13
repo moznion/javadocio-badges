@@ -1,9 +1,9 @@
 package net.moznion.javadocio.badges;
 
+import lombok.extern.slf4j.Slf4j;
 import me.geso.mech2.Mech2;
 import me.geso.mech2.Mech2Result;
 import me.geso.webscrew.response.RedirectResponse;
-
 import net.moznion.javadocio.badges.controller.BaseController;
 
 import org.apache.http.HttpResponse;
@@ -15,6 +15,7 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class BadgeFetcher {
   private final String groupId;
   private final String artifactId;
@@ -48,6 +49,7 @@ public class BadgeFetcher {
       result = mech2.disableRedirectHandling() // to get URI even if redirecting
           .get(new URI(JavadocIoUrlBuilder.build(groupId, artifactId))).execute();
     } catch (URISyntaxException | IOException e) {
+      log.warn(e.getMessage());
       e.printStackTrace();
       return "Unknown";
     }
@@ -56,7 +58,7 @@ public class BadgeFetcher {
     StatusLine statusLine = res.getStatusLine();
 
     if (statusLine.getStatusCode() >= 400) {
-      System.err.println(statusLine.getReasonPhrase());
+      log.warn(statusLine.getReasonPhrase());
       return "Unknown";
     }
 
