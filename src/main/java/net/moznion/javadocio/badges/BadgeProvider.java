@@ -1,44 +1,48 @@
 package net.moznion.javadocio.badges;
 
-import lombok.extern.slf4j.Slf4j;
-import me.geso.mech2.Mech2;
-import me.geso.mech2.Mech2Result;
-import me.geso.webscrew.response.RedirectResponse;
-import net.moznion.javadocio.badges.controller.BaseController;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
+import lombok.extern.slf4j.Slf4j;
+import me.geso.mech2.Mech2;
+import me.geso.mech2.Mech2Result;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.StatusLine;
+
 @Slf4j
 public class BadgeProvider {
   private final String groupId;
   private final String artifactId;
-  private final BaseController controller;
 
-  private static final String baseUrl = "https://img.shields.io";
+  private static final String baseUrl = "http://img.shields.io";
   private static final Mech2 mech2 = Mech2.builder().build();
 
-  public BadgeProvider(String groupId, String artifactId, BaseController controller) {
+  public BadgeProvider(String groupId, String artifactId) {
     this.groupId = groupId;
     this.artifactId = artifactId;
-    this.controller = controller;
   }
 
-  public RedirectResponse redirect() {
-    return controller.redirect(buildShieldsIoUrl());
+  public String fetch() throws URISyntaxException, IOException {
+    String javadocVersion = retrieveJavadocVersion();
+    String shieldsIoUrl = buildShieldsIoUrl(javadocVersion);
+
+    Mech2Result result = mech2.get(new URI(shieldsIoUrl)).execute();
+    if (!result.isSuccess()) {
+      log.warn(result.getResponse().getStatusLine().getReasonPhrase());
+      throw new FailedFetchingBadgeException(shieldsIoUrl);
+    }
+    return result.getResponseBodyAsString();
   }
 
-  private String buildShieldsIoUrl() {
+  private String buildShieldsIoUrl(String javadocVersion) {
     return new StringBuilder()
         .append(baseUrl)
         .append("/badge/javadoc.io-")
-        .append(retrieveJavadocVersion())
+        .append(javadocVersion)
         .append("-blue.svg?style=flat")
         .toString();
   }
