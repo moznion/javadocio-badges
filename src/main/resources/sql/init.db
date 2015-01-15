@@ -1,0 +1,10 @@
+CREATE TABLE IF NOT EXISTS badge (
+    group_id         VARCHAR(128) NOT NULL,
+    artifact_id      VARCHAR(128) NOT NULL,
+    version          VARCHAR(64)  NOT NULL,
+    svg              TEXT         NOT NULL,
+    last_accessed_at INT          NOT NULL,
+    PRIMARY KEY (group_id, artifact_id, version)
+);
+CREATE INDEX last_accessed_at ON badge (last_accessed_at);
+

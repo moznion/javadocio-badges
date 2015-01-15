@@ -1,15 +1,22 @@
 package net.moznion.javadocio.badges.controller;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import me.geso.avans.annotation.GET;
 import me.geso.avans.annotation.PathParam;
 import me.geso.webscrew.response.WebResponse;
+
 import net.moznion.javadocio.badges.BadgeProvider;
+import net.moznion.javadocio.badges.Context;
 import net.moznion.javadocio.badges.JavadocIoUrlBuilder;
 
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
+
 public class RootController extends BaseController {
+  static {
+    new Context();
+  }
+
   @GET("/{groupId}/{artifactId}")
   public WebResponse getJavadocIo(@PathParam("groupId") final String groupId,
       @PathParam("artifactId") final String artifactId) {
@@ -18,7 +25,8 @@ public class RootController extends BaseController {
 
   @GET("/{groupId}/{artifactId}/badge.svg")
   public WebResponse getBadge(@PathParam("groupId") final String groupId,
-      @PathParam("artifactId") final String artifactId) throws URISyntaxException, IOException {
+      @PathParam("artifactId") final String artifactId) throws URISyntaxException, IOException,
+      SQLException {
     return this.renderSvg(new BadgeProvider(groupId, artifactId).fetch());
   }
 }

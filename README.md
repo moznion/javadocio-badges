@@ -27,7 +27,7 @@ Example: embedded into markdown
 Start the server
 --
 
-    mvn jetty:run
+    DATABASE_URL=postgres://user_name:password@host:port/db_name mvn jetty:run
 
 Creating war file
 --
