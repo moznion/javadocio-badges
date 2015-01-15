@@ -54,6 +54,17 @@ public class BadgeProvider {
         sth.setString(3, javadocVersion);
         ResultSet rs = sth.executeQuery();
         if (rs.next()) {
+          log.debug(new StringBuilder()
+              .append("Hit the cache (group_id: ")
+              .append(groupId)
+              .append(", artifact_id: ")
+              .append(artifactId)
+              .append(", version: ")
+              .append(javadocVersion)
+              .append(")")
+              .toString());
+
+          // Update last accessed time stamp
           PreparedStatement sthToUpdate = connection
               .prepareStatement("UPDATE badge SET last_accessed_at = "
                   + getCurrentUnixTime()
@@ -62,6 +73,7 @@ public class BadgeProvider {
           sthToUpdate.setString(2, artifactId);
           sthToUpdate.setString(3, javadocVersion);
           sthToUpdate.executeUpdate();
+
           return rs.getString("svg"); // return cached SVG
         }
       }
