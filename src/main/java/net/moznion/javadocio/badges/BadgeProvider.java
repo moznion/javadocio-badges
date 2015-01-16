@@ -14,11 +14,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 public class BadgeProvider {
@@ -45,15 +44,13 @@ public class BadgeProvider {
       String javadocVersion = retrieveJavadocVersion();
       {
         // Search cache
-        // XXX tinyorm does not work certainly. I wonder why...
-        PreparedStatement sth =
-            connection
-                .prepareStatement("SELECT * FROM badge WHERE group_id=? AND artifact_id=? AND version=?");
-        sth.setString(1, groupId);
-        sth.setString(2, artifactId);
-        sth.setString(3, javadocVersion);
-        ResultSet rs = sth.executeQuery();
-        if (rs.next()) {
+        Optional<Badge> maybeBadge = db.single(Badge.class)
+            .where("group_id=?", groupId)
+            .where("artifact_id=?", artifactId)
+            .where("version=?", javadocVersion)
+            .execute();
+
+        if (maybeBadge.isPresent()) {
           log.debug(new StringBuilder()
               .append("Hit the cache (group_id: ")
               .append(groupId)
@@ -64,17 +61,12 @@ public class BadgeProvider {
               .append(")")
               .toString());
 
-          // Update last accessed time stamp
-          PreparedStatement sthToUpdate = connection
-              .prepareStatement("UPDATE badge SET last_accessed_at = "
-                  + getCurrentUnixTime()
-                  + " WHERE group_id=? AND artifact_id=? AND version=?");
-          sthToUpdate.setString(1, groupId);
-          sthToUpdate.setString(2, artifactId);
-          sthToUpdate.setString(3, javadocVersion);
-          sthToUpdate.executeUpdate();
+          Badge badge = maybeBadge.get();
+          badge.update()
+              .set("last_accessed_at", System.currentTimeMillis() / 1000)
+              .execute();
 
-          return rs.getString("svg"); // return cached SVG
+          return badge.getSvg();
         }
       }
 
