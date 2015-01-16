@@ -63,7 +63,8 @@ public class BadgeProvider {
 
           Badge badge = maybeBadge.get();
           badge.update()
-              .set("last_accessed_at", System.currentTimeMillis() / 1000)
+              .set("last_accessed_at", 0) // update time stamp automatically by
+                                          // @UpdatedTimestampColumn
               .execute();
 
           return badge.getSvg();
