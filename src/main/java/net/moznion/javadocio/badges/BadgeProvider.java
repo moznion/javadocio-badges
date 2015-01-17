@@ -2,11 +2,12 @@ package net.moznion.javadocio.badges;
 
 import lombok.extern.slf4j.Slf4j;
 
-import net.moznion.javadocio.badges.model.Badge;
-
 import me.geso.mech2.Mech2;
 import me.geso.mech2.Mech2Result;
 import me.geso.tinyorm.TinyORM;
+
+import net.moznion.javadocio.badges.exception.FailedFetchingBadgeException;
+import net.moznion.javadocio.badges.row.Badge;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -25,87 +26,103 @@ import java.util.Optional;
 public class BadgeProvider {
   private final String groupId;
   private final String artifactId;
+  private final String javadocVersion;
 
   private static final String baseUrl = "http://img.shields.io";
   private static final Mech2 mech2 = Mech2.builder().build();
+
+  /*
+   * For Heroku Postgres Hobby Dev plan.
+   * https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier
+   */
   private static final int maximumLimitOfRow = 10000;
 
   public BadgeProvider(String groupId, String artifactId) {
     this.groupId = groupId;
     this.artifactId = artifactId;
+    javadocVersion = retrieveJavadocVersion();
+  }
+
+  public String retrieve() throws URISyntaxException, IOException, SQLException {
+    try (Connection connection =
+        PGPoolingDataSource.getDataSource(Context.dataSourceName).getConnection()) {
+      TinyORM db = new TinyORM(connection);
+
+      // Search cache
+      Optional<String> maybeCachedSvg = searchCachedSvg(db);
+      if (maybeCachedSvg.isPresent()) {
+        return maybeCachedSvg.get();
+      }
+
+      String svgString = fetchSvgFromRemote();
+      registerCache(svgString, db);
+      return svgString;
+    }
   }
 
   private long getCurrentUnixTime() {
     return System.currentTimeMillis() / 1000L;
   }
 
-  public String fetch() throws URISyntaxException, IOException, SQLException {
-    try (Connection connection =
-        PGPoolingDataSource.getDataSource(Context.dataSourceName).getConnection()) {
-      TinyORM db = new TinyORM(connection);
+  private Optional<String> searchCachedSvg(TinyORM db) {
+    Optional<Badge> maybeBadge = db.single(Badge.class)
+        .where("group_id=?", groupId)
+        .where("artifact_id=?", artifactId)
+        .where("version=?", javadocVersion)
+        .execute();
 
-      String javadocVersion = retrieveJavadocVersion();
-      {
-        // Search cache
-        Optional<Badge> maybeBadge = db.single(Badge.class)
-            .where("group_id=?", groupId)
-            .where("artifact_id=?", artifactId)
-            .where("version=?", javadocVersion)
-            .execute();
+    if (maybeBadge.isPresent()) {
+      log.debug(new StringBuilder()
+          .append("Hit the cache (group_id: ")
+          .append(groupId)
+          .append(", artifact_id: ")
+          .append(artifactId)
+          .append(", version: ")
+          .append(javadocVersion)
+          .append(")")
+          .toString());
 
-        if (maybeBadge.isPresent()) {
-          log.debug(new StringBuilder()
-              .append("Hit the cache (group_id: ")
-              .append(groupId)
-              .append(", artifact_id: ")
-              .append(artifactId)
-              .append(", version: ")
-              .append(javadocVersion)
-              .append(")")
-              .toString());
+      Badge badge = maybeBadge.get();
 
-          Badge badge = maybeBadge.get();
-          badge.update()
-              .set("last_accessed_at", getCurrentUnixTime())
-              .execute();
+      // Update accessed at time stamp
+      badge.update()
+          .set("last_accessed_at", getCurrentUnixTime())
+          .execute();
 
-          return badge.getSvg();
-        }
-      }
+      return Optional.of(badge.getSvg());
+    }
 
-      // Fetch SVG badge from remote
-      String shieldsIoUrl = buildShieldsIoUrl(javadocVersion);
-      Mech2Result result = mech2.get(new URI(shieldsIoUrl)).execute();
-      if (!result.isSuccess()) {
-        log.warn(result.getResponse().getStatusLine().getReasonPhrase());
-        throw new FailedFetchingBadgeException(shieldsIoUrl);
-      }
-      String svgString = result.getResponseBodyAsString();
+    return Optional.empty();
+  }
 
-      Badge newBadge = new Badge();
-      newBadge.setGroup_id(groupId);
-      newBadge.setArtifact_id(artifactId);
-      newBadge.setVersion(javadocVersion);
-      newBadge.setSvg(svgString);
+  private String fetchSvgFromRemote() throws URISyntaxException, IOException {
+    String shieldsIoUrl = buildShieldsIoUrl(javadocVersion);
+    Mech2Result result = mech2.get(new URI(shieldsIoUrl)).execute();
+    if (!result.isSuccess()) {
+      log.warn(result.getResponse().getStatusLine().getReasonPhrase());
+      throw new FailedFetchingBadgeException(shieldsIoUrl);
+    }
 
-      long numOfRow = db.count(Badge.class).execute();
-      if (numOfRow >= maximumLimitOfRow) {
-        /*
-         * For Heroku Postgres Hobby Dev plan.
-         * https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier
-         * 
-         * If over 10000 rows, it overwrite a row which is not the most referenced
-         */
-        db.single(Badge.class)
-            .orderBy("last_accessed_at ASC")
-            .limit(1)
-            .execute().get()
-            .update().setBean(newBadge).execute();
-      } else {
-        db.insert(Badge.class).valueByBean(newBadge).execute();
-      }
+    return result.getResponseBodyAsString();
+  }
 
-      return svgString;
+  private void registerCache(String svgString, TinyORM db) {
+    Badge newBadge = new Badge();
+    newBadge.setGroup_id(groupId);
+    newBadge.setArtifact_id(artifactId);
+    newBadge.setVersion(javadocVersion);
+    newBadge.setSvg(svgString);
+
+    long numOfRow = db.count(Badge.class).execute();
+    if (numOfRow >= maximumLimitOfRow) {
+      // If over limit rows, it overwrite a row which is not the most referenced
+      db.single(Badge.class)
+          .orderBy("last_accessed_at ASC")
+          .limit(1)
+          .execute().get()
+          .update().setBean(newBadge).execute();
+    } else {
+      db.insert(Badge.class).valueByBean(newBadge).execute();
     }
   }
 

@@ -9,6 +9,14 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Context class.
+ * 
+ * It must be singleton.
+ * 
+ * @author moznion
+ *
+ */
 @Slf4j
 public class Context {
   public static final String dataSourceName = "pg-datasource";

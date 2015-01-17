@@ -27,6 +27,6 @@ public class RootController extends BaseController {
   public WebResponse getBadge(@PathParam("groupId") final String groupId,
       @PathParam("artifactId") final String artifactId) throws URISyntaxException, IOException,
       SQLException {
-    return this.renderSvg(new BadgeProvider(groupId, artifactId).fetch());
+    return this.renderSvg(new BadgeProvider(groupId, artifactId).retrieve());
   }
 }
