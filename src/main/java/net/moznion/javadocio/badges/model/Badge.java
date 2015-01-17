@@ -1,4 +1,4 @@
-package net.moznion.javadocio.badges;
+package net.moznion.javadocio.badges.model;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;

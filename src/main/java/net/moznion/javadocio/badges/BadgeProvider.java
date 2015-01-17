@@ -2,6 +2,8 @@ package net.moznion.javadocio.badges;
 
 import lombok.extern.slf4j.Slf4j;
 
+import net.moznion.javadocio.badges.model.Badge;
+
 import me.geso.mech2.Mech2;
 import me.geso.mech2.Mech2Result;
 import me.geso.tinyorm.TinyORM;
@@ -26,6 +28,7 @@ public class BadgeProvider {
 
   private static final String baseUrl = "http://img.shields.io";
   private static final Mech2 mech2 = Mech2.builder().build();
+  private static final int maximumLimitOfRow = 10000;
 
   public BadgeProvider(String groupId, String artifactId) {
     this.groupId = groupId;
@@ -63,8 +66,7 @@ public class BadgeProvider {
 
           Badge badge = maybeBadge.get();
           badge.update()
-              .set("last_accessed_at", 0) // update time stamp automatically by
-                                          // @UpdatedTimestampColumn
+              .set("last_accessed_at", getCurrentUnixTime())
               .execute();
 
           return badge.getSvg();
@@ -85,10 +87,15 @@ public class BadgeProvider {
       newBadge.setArtifact_id(artifactId);
       newBadge.setVersion(javadocVersion);
       newBadge.setSvg(svgString);
-      newBadge.setLast_accessed_at(getCurrentUnixTime());
 
       long numOfRow = db.count(Badge.class).execute();
-      if (numOfRow >= 10000) {
+      if (numOfRow >= maximumLimitOfRow) {
+        /*
+         * For Heroku Postgres Hobby Dev plan.
+         * https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier
+         * 
+         * If over 10000 rows, it overwrite a row which is not the most referenced
+         */
         db.single(Badge.class)
             .orderBy("last_accessed_at ASC")
             .limit(1)
