@@ -1,4 +1,4 @@
-package net.moznion.javadocio.badges.controller;
+package net.moznion.javadocio.badges;
 
 import lombok.extern.slf4j.Slf4j;
 

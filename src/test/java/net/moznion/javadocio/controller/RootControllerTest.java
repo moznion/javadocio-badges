@@ -1,6 +1,9 @@
-package net.moznion.javadocio.badges.controller;
+package net.moznion.javadocio.controller;
 
 import static org.junit.Assert.assertTrue;
+
+import net.moznion.javadocio.badges.TestUtil;
+
 import me.geso.mech2.Mech2;
 import me.geso.mech2.Mech2Result;
 import me.geso.mech2.Mech2WithBase;

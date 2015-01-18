@@ -1,4 +1,4 @@
-package net.moznion.javadocio.badges.controller;
+package net.moznion.javadocio.badges;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
