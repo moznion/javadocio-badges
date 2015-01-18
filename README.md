@@ -32,12 +32,12 @@ Start the server
 Creating war file
 --
 
-    mvn package
+    DATABASE_URL=postgres://user_name:password@host:port/db_name mvn package
 
 How to Deploy to Heroku
 --
 
-    mvn clean heroku:deploy-war
+    DATABASE_URL=postgres://user_name:password@host:port/db_name mvn clean heroku:deploy-war
 
 Author
 --

@@ -135,13 +135,9 @@
 				<version>0.3.0</version>
 				<configuration>
 					<appName>javadocio-badges</appName>
-					<processTypes>
-						<web>java $JAVA_OPTS -DmaximumLimitOfCacheRow=10000 -jar
-							target/dependency/webapp-runner.jar
-							$WEBAPP_RUNNER_OPTS --port
-							$PORT
-							target/javadocio-badges-${version}.war</web>
-					</processTypes>
+					<configVars>
+						<JAVA_OPTS>-Xmx384m -Xss512k -XX:+UseCompressedOops -DmaximumLimitOfCacheRow=10000</JAVA_OPTS>
+					</configVars>
 				</configuration>
 			</plugin>
 		</plugins>
