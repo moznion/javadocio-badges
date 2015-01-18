@@ -31,23 +31,6 @@ public class BadgeProvider {
   private static final String baseUrl = "http://img.shields.io";
   private static final Mech2 mech2 = Mech2.builder().build();
 
-  /*
-   * e.g. for Heroku Postgres Hobby Dev plan
-   * https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier
-   * 
-   * If this variable is null, it will be ignore limiting of maximum row.
-   */
-  private static final Integer maximumLimitOfCacheRow;
-
-  static {
-    String maximumLimitOfCacheRowTemp = System.getProperty("maximumLimitOfCacheRow");
-    if (maximumLimitOfCacheRowTemp == null) {
-      maximumLimitOfCacheRow = null;
-    } else {
-      maximumLimitOfCacheRow = Integer.parseInt(maximumLimitOfCacheRowTemp, 10);
-    }
-  }
-
   public BadgeProvider(String groupId, String artifactId) {
     this.groupId = groupId;
     this.artifactId = artifactId;
@@ -125,6 +108,8 @@ public class BadgeProvider {
     newBadge.setVersion(javadocVersion);
     newBadge.setSvg(svgString);
 
+    Integer maximumLimitOfCacheRow = getMaximumLimitOfCacheRow();
+
     long numOfRow = db.count(Badge.class).execute();
     if (maximumLimitOfCacheRow != null && numOfRow >= maximumLimitOfCacheRow) {
       // If over limit rows, it overwrite a row which is not the most referenced
@@ -136,6 +121,26 @@ public class BadgeProvider {
     } else {
       db.insert(Badge.class).valueByBean(newBadge).execute();
     }
+  }
+
+  /**
+   * Fetch number of maximum rows for caching of badge from system property.
+   * 
+   * <p>
+   * e.g. for Heroku Postgres Hobby Dev plan
+   * https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier
+   * </p>
+   * 
+   * @return Number of maximum rows for caching of badge. If it returns null, it means *UNLIMITED*.
+   */
+  private Integer getMaximumLimitOfCacheRow() {
+    Integer maximumLimitOfCacheRow = null;
+    String maximumLimitOfCacheRowTemp = System.getProperty("maximumLimitOfCacheRow");
+    if (maximumLimitOfCacheRowTemp != null) {
+      maximumLimitOfCacheRow = Integer.parseInt(maximumLimitOfCacheRowTemp, 10);
+    }
+
+    return maximumLimitOfCacheRow;
   }
 
   private String buildShieldsIoUrl(String javadocVersion) {

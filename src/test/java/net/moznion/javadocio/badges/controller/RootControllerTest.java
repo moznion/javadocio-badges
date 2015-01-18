@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 
 import javax.servlet.ServletException;
 
@@ -24,7 +25,8 @@ public class RootControllerTest {
   private static Tomcat tomcat;
 
   @BeforeClass
-  public static void before() throws ServletException, LifecycleException, URISyntaxException {
+  public static void before() throws ServletException, LifecycleException, URISyntaxException,
+      SQLException, IOException {
     tomcat = new Tomcat();
     tomcat.setPort(0);
     org.apache.catalina.Context webContext = tomcat.addWebapp("/", new
@@ -36,6 +38,8 @@ public class RootControllerTest {
     int port = tomcat.getConnector().getLocalPort();
     String url = "http://127.0.0.1:" + port;
     mech = new Mech2WithBase(Mech2.builder().build(), new URI(url));
+
+    TestUtil.initializeDatabase();
   }
 
   @AfterClass

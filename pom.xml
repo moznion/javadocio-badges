@@ -94,6 +94,13 @@
 		</dependency>
 
 		<dependency>
+			<groupId>net.moznion</groupId>
+			<artifactId>capture-output-stream</artifactId>
+			<version>1.0.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.14.8</version>
