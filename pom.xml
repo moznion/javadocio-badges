@@ -61,6 +61,25 @@
 		</dependency>
 
 		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-core</artifactId>
+			<version>${tomcat.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-catalina</artifactId>
+			<version>${tomcat.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>tomcat-jasper</artifactId>
+			<version>${tomcat.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>9.3-1102-jdbc41</version>
@@ -109,6 +128,13 @@
 				<version>0.3.0</version>
 				<configuration>
 					<appName>javadocio-badges</appName>
+					<processTypes>
+						<web>java $JAVA_OPTS -DmaximumLimitOfCacheRow=10000 -jar
+							target/dependency/webapp-runner.jar
+							$WEBAPP_RUNNER_OPTS --port
+							$PORT
+							target/javadocio-badges-${version}.war</web>
+					</processTypes>
 				</configuration>
 			</plugin>
 		</plugins>

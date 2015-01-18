@@ -1,45 +1,59 @@
 package net.moznion.javadocio.badges.controller;
 
+import static org.junit.Assert.assertTrue;
 import me.geso.mech2.Mech2;
 import me.geso.mech2.Mech2Result;
 import me.geso.mech2.Mech2WithBase;
+
 import org.apache.catalina.Globals;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.startup.Tomcat;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.servlet.ServletException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import javax.servlet.ServletException;
 
 public class RootControllerTest {
-    private Mech2WithBase mech;
-    private Tomcat tomcat;
+  private static Mech2WithBase mech;
+  private static Tomcat tomcat;
 
-    @Before
-    public void before() throws ServletException, LifecycleException, URISyntaxException {
-        this.tomcat = new Tomcat();
-        tomcat.setPort(0);
-        org.apache.catalina.Context webContext = tomcat.addWebapp("/", new File("src/main/webapp").getAbsolutePath());
-        webContext.getServletContext().setAttribute(Globals.ALT_DD_ATTR, "src/main/webapp/WEB-INF/web.xml");
-        tomcat.start();
+  @BeforeClass
+  public static void before() throws ServletException, LifecycleException, URISyntaxException {
+    tomcat = new Tomcat();
+    tomcat.setPort(0);
+    org.apache.catalina.Context webContext = tomcat.addWebapp("/", new
+        File("src/main/webapp").getAbsolutePath());
+    webContext.getServletContext().setAttribute(Globals.ALT_DD_ATTR,
+        "src/main/webapp/WEB-INF/web.xml");
+    tomcat.start();
 
-        int port = tomcat.getConnector().getLocalPort();
-        String url = "http://127.0.0.1:" + port;
-        this.mech = new Mech2WithBase(Mech2.builder().build(), new URI(url));
+    int port = tomcat.getConnector().getLocalPort();
+    String url = "http://127.0.0.1:" + port;
+    mech = new Mech2WithBase(Mech2.builder().build(), new URI(url));
+  }
+
+  @AfterClass
+  public static void after() throws Exception {
+    if (tomcat != null) {
+      tomcat.stop();
     }
+  }
 
-    @After
-    public void after() throws Exception {
-        if (this.tomcat != null) {
-            this.tomcat.stop();
-        }
-    }
+  @Test
+  public void getJavadocIo() throws URISyntaxException, IOException {
+    Mech2Result result = mech.get("/net.moznion/mysql-diff").execute();
+    assertTrue(result.isSuccess());
+  }
+
+  @Test
+  public void getBadge() throws URISyntaxException, IOException {
+    Mech2Result result = mech.get("/net.moznion/mysql-diff/badge.svg").execute();
+    assertTrue(result.isSuccess());
+  }
 }
