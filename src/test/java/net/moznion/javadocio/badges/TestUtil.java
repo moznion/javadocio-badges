@@ -2,10 +2,9 @@ package net.moznion.javadocio.badges;
 
 import lombok.extern.slf4j.Slf4j;
 
-import net.moznion.javadocio.badges.Context;
+import me.geso.tinyorm.TinyORM;
 
 import org.postgresql.ds.PGPoolingDataSource;
-import org.postgresql.util.PSQLException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,13 +18,14 @@ public class TestUtil {
   public static void initializeDatabase() throws SQLException, IOException {
     try (Connection connection =
         PGPoolingDataSource.getDataSource(Context.dataSourceName).getConnection()) {
+      TinyORM db = new TinyORM(connection);
       try {
-        connection.prepareStatement("DROP TABLE badge").executeUpdate();
-      } catch (PSQLException e) {
+        db.updateBySQL("DROP TABLE badge");
+      } catch (RuntimeException e) {
         log.info(e.getMessage());
       }
       List<String> schema = Files.readAllLines(Paths.get("src/main/resources/sql/init.db"));
-      connection.prepareStatement(String.join("", schema)).executeUpdate();
+      db.updateBySQL(String.join("", schema));
     }
   }
 }
