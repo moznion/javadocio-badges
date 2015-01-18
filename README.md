@@ -1,4 +1,4 @@
-javadocio-badges
+javadocio-badges [![Build Status](https://travis-ci.org/moznion/javadocio-badges.svg?branch=master)](https://travis-ci.org/moznion/javadocio-badges)
 ==
 
 Provides badge of [javadoc.io](http://www.javadoc.io/).
