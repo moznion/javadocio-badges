@@ -32,10 +32,21 @@ public class BadgeProvider {
   private static final Mech2 mech2 = Mech2.builder().build();
 
   /*
-   * For Heroku Postgres Hobby Dev plan.
+   * e.g. for Heroku Postgres Hobby Dev plan
    * https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier
+   * 
+   * If this variable is null, it will be ignore limiting of maximum row.
    */
-  private static final int maximumLimitOfRow = 10000;
+  private static final Integer maximumLimitOfCacheRow;
+
+  static {
+    String maximumLimitOfCacheRowTemp = System.getProperty("maximumLimitOfCacheRow");
+    if (maximumLimitOfCacheRowTemp == null) {
+      maximumLimitOfCacheRow = null;
+    } else {
+      maximumLimitOfCacheRow = Integer.parseInt(maximumLimitOfCacheRowTemp, 10);
+    }
+  }
 
   public BadgeProvider(String groupId, String artifactId) {
     this.groupId = groupId;
@@ -98,6 +109,7 @@ public class BadgeProvider {
   private String fetchSvgFromRemote() throws URISyntaxException, IOException {
     String shieldsIoUrl = buildShieldsIoUrl(javadocVersion);
     Mech2Result result = mech2.get(new URI(shieldsIoUrl)).execute();
+
     if (!result.isSuccess()) {
       log.warn(result.getResponse().getStatusLine().getReasonPhrase());
       throw new FailedFetchingBadgeException(shieldsIoUrl);
@@ -114,7 +126,7 @@ public class BadgeProvider {
     newBadge.setSvg(svgString);
 
     long numOfRow = db.count(Badge.class).execute();
-    if (numOfRow >= maximumLimitOfRow) {
+    if (maximumLimitOfCacheRow != null && numOfRow >= maximumLimitOfCacheRow) {
       // If over limit rows, it overwrite a row which is not the most referenced
       db.single(Badge.class)
           .orderBy("last_accessed_at ASC")
@@ -140,9 +152,8 @@ public class BadgeProvider {
     try {
       result = mech2.disableRedirectHandling() // to get URI even if redirecting
           .get(new URI(JavadocIoUrlBuilder.build(groupId, artifactId))).execute();
-    } catch (URISyntaxException | IOException e) {
+    } catch (Exception e) {
       log.warn(e.getMessage());
-      e.printStackTrace();
       return "Unknown";
     }
 

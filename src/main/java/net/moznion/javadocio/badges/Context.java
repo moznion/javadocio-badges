@@ -1,13 +1,9 @@
 package net.moznion.javadocio.badges;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.postgresql.ds.PGPoolingDataSource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Context class.
@@ -17,7 +13,6 @@ import java.util.List;
  * @author moznion
  *
  */
-@Slf4j
 public class Context {
   public static final String dataSourceName = "pg-datasource";
 
@@ -30,32 +25,20 @@ public class Context {
       System.exit(1);
     }
 
-    List<String> userInfo = Arrays.asList(dbUri.getUserInfo().split(":"));
-
-    if (userInfo.size() < 1) {
-      log.error("Too few user information");
-      System.exit(1);
-    }
-    String username = userInfo.get(0);
-
-    String password = null;
-    if (userInfo.size() >= 2) {
-      password = userInfo.get(1);
-    }
+    PgConnectionInformation connInfo = PgConnectionInformation.parseUri(dbUri);
 
     PGPoolingDataSource dataSource = new PGPoolingDataSource();
     dataSource.setDataSourceName(dataSourceName);
 
-    int port = dbUri.getPort();
-    String host = dbUri.getHost();
+    int port = connInfo.getPort();
+    String host = connInfo.getHost();
     dataSource.setServerName(host + ":" + port);
-    if (port < 0) {
+    if (port < 0) { // if port is not specified, port is negative
       dataSource.setServerName(host);
     }
-
-    dataSource.setDatabaseName(dbUri.getPath().substring(1));
-    dataSource.setUser(username);
-    dataSource.setPassword(password);
+    dataSource.setDatabaseName(connInfo.getDbName());
+    dataSource.setUser(connInfo.getUserName());
+    dataSource.setPassword(connInfo.getPassword());
     dataSource.setMaxConnections(8);
   }
 }
