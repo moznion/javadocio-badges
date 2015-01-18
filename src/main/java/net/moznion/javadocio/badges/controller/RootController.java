@@ -7,6 +7,7 @@ import me.geso.webscrew.response.WebResponse;
 import net.moznion.javadocio.badges.BadgeProvider;
 import net.moznion.javadocio.badges.Context;
 import net.moznion.javadocio.badges.JavadocIoUrlBuilder;
+import net.moznion.javadocio.badges.exception.FailedFetchingBadgeException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -27,6 +28,10 @@ public class RootController extends BaseController {
   public WebResponse getBadge(@PathParam("groupId") final String groupId,
       @PathParam("artifactId") final String artifactId) throws URISyntaxException, IOException,
       SQLException {
-    return this.renderSvg(new BadgeProvider(groupId, artifactId).retrieve());
+    try {
+      return this.renderSvg(new BadgeProvider(groupId, artifactId).retrieve());
+    } catch (FailedFetchingBadgeException e) {
+      return this.errorNotFound();
+    }
   }
 }

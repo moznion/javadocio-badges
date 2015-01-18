@@ -154,9 +154,10 @@ public class BadgeProvider {
 
   private String retrieveJavadocVersion() {
     Mech2Result result;
+    String javadocIoUrl = JavadocIoUrlBuilder.build(groupId, artifactId);
     try {
       result = mech2.disableRedirectHandling() // to get URI even if redirecting
-          .get(new URI(JavadocIoUrlBuilder.build(groupId, artifactId))).execute();
+          .get(new URI(javadocIoUrl)).execute();
     } catch (Exception e) {
       log.warn(e.getMessage());
       return "Unknown";
@@ -172,6 +173,10 @@ public class BadgeProvider {
 
     String location = res.getLastHeader("Location").getValue();
     List<String> paths = Arrays.asList(location.split("/"));
+    if (paths.isEmpty()) {
+      throw new FailedFetchingBadgeException(javadocIoUrl);
+    }
+
     return paths.get(paths.size() - 1);
   }
 }

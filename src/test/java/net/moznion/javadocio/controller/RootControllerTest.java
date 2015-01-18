@@ -1,5 +1,6 @@
 package net.moznion.javadocio.controller;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import net.moznion.javadocio.badges.TestUtil;
@@ -62,5 +63,12 @@ public class RootControllerTest {
   public void getBadge() throws URISyntaxException, IOException {
     Mech2Result result = mech.get("/net.moznion/mysql-diff/badge.svg").execute();
     assertTrue(result.isSuccess());
+  }
+
+  @Test
+  public void notfoundBadge() throws URISyntaxException, IOException {
+    Mech2Result result = mech.get("/naiyo.naiyo/sonnano.naiyo/badge.svg").execute();
+    assertEquals(result.getResponse().getStatusLine().getStatusCode(), 404);
+
   }
 }
