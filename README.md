@@ -39,6 +39,20 @@ How to Deploy to Heroku
 
     DATABASE_URL=postgres://user_name:password@host:port/db_name mvn clean heroku:deploy-war
 
+Execution Option
+--
+
+- `maximumLimitOfCacheRow`
+
+Number of maximum rows to limit for caching (why is it needed? => For example, [Heroku Postgres Hobby Dev Plan](https://devcenter.heroku.com/articles/heroku-postgres-plans#hobby-tier)).  
+It must be integer value. If this value is not specified, means null, it will be unlimited to cache.
+
+Example;
+
+```
+java -DmaximumLimitOfCacheRow=10000 ...
+```
+
 Author
 --
 
