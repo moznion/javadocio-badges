@@ -94,6 +94,7 @@ public class BadgeProvider {
     Mech2Result result = mech2.get(new URI(shieldsIoUrl)).execute();
 
     if (!result.isSuccess()) {
+      log.debug(shieldsIoUrl);
       log.warn(result.getResponse().getStatusLine().getReasonPhrase());
       throw new FailedFetchingBadgeException(shieldsIoUrl);
     }
