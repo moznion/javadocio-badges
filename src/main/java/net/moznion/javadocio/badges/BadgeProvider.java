@@ -28,7 +28,7 @@ public class BadgeProvider {
   private final String artifactId;
   private final String javadocVersion;
 
-  private static final String baseUrl = "http://img.shields.io";
+  private static final String baseUrl = "https://img.shields.io";
   private static final Mech2 mech2 = Mech2.builder().build();
 
   public BadgeProvider(String groupId, String artifactId) {
@@ -94,7 +94,6 @@ public class BadgeProvider {
     Mech2Result result = mech2.get(new URI(shieldsIoUrl)).execute();
 
     if (!result.isSuccess()) {
-      log.debug(shieldsIoUrl);
       log.warn(result.getResponse().getStatusLine().getReasonPhrase());
       throw new FailedFetchingBadgeException(shieldsIoUrl);
     }
